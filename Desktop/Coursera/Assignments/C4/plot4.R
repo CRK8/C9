@@ -1,29 +1,24 @@
-# R code for "Exploratory Data Analysis" Assignment 1 plot 1
-# Read table into R and put data needed into "hpc"
-household_power_consumption <- read.table("./household_power_consumption.txt", header=TRUE,sep=";",na.strings = "?")
-hpc1<-subset(household_power_consumption,Date==c("1/2/2007"))
-hpc2<-subset(household_power_consumption,Date==c("2/2/2007"))
-hpc<-NULL
-hpc<-rbind(hpc1,hpc2)
-hpc[,2]<-data.frame(strptime(paste(hpc$Date,hpc$Time),"%d/%m/%Y %H:%M:%S"))
-hpc[,1]<-as.Date(hpc$Date,"%d/%m/%Y")
 
-# Plot 4
+# Construct the plot and save it to a PNG file.
+# Create a separate R code file (plot1.R, plot2.R, etc.) that constructs the corresponding 
+#     plot, i.e. code in plot1.R constructs the plot1.png plot. Your code file should include 
+#     code for reading the data so that the plot can be fully reproduced. You must also 
+#     include the code that creates the PNG file. Only include the code for a single plot 
+#     (i.e. plot1.R should only include code for producing plot1.png)
+
+library(ggplot2)
+
+#NEI <- readRDS("summarySCC_PM25.rds")
+#SCC <- readRDS("Source_Classification_Code.rds")
+
+# 4) Across the United States, how have emissions from coal combustion-related sources changed from 
+# 1999-2008?
+
+comb<-SCC[grep("[Cc]oal",SCC$EI.Sector),]
+coal<-subset(NEI,SCC %in% comb[,1])
+
 png(filename="./plot4.png",width = 480, height = 480)
-par(mfrow=c(2,2))
-
-# Sub-plot 1
-plot(hpc$Time,hpc$Global_active_power,type="l",xlab = "", ylab = "Global Active Power")
-
-# Sub-plot 2
-plot(hpc$Time,hpc$Voltage,type="l",xlab="datetime",ylab = "Voltage")
-
-# Sub-plot 3
-plot(hpc$Time,hpc$Sub_metering_1,type="l",xlab = "", ylab = "Energy sub metering")
-points(hpc$Time,hpc$Sub_metering_2,type="l",col="red")
-points(hpc$Time,hpc$Sub_metering_3,type="l",col="blue")
-legend("topright",lty=1,bty="n",col = c("black","red","blue"),legend = c("Sub_metering_1","Sub_metering_2","Sub_metering_3"))
-
-# Sub-plot 4
-plot(hpc$Time,hpc$Global_reactive_power,type="l",xlab="datetime",ylab = "Global_reactive_power")
+title<-"US PM2.5 Emissions from Coal Combustion-related Sources"
+p<-ggplot(coal,aes(factor(year),Emissions))
+p+scale_y_log10()+geom_boxplot(aes(group=year))+ggtitle(title)
 dev.off()
